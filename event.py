@@ -22,27 +22,30 @@ def event(link, year):
     sp = soup.find("div", id="main")
     event_name = sp.find("h2").text.strip()
 
-    rs = sp.find_all("dd")
-    metadata = []
-    for r in rs:
-        metadata.append(r.text.strip())
+    metadata_div = sp.find("div", class_="row")
+    metadata_table = metadata_div.find_all("td")
 
-    month_name = metadata[0].split(" ")[0].strip()
+    metadata = []
+
+    for m in metadata_table:
+        metadata.append(m.text.strip())
+
+    month_name = metadata[1].split(" ")[0].strip()
 
     date_object = datetime.strptime(month_name, "%B")
     month_number = date_object.month
 
-    day = metadata[0].split(" ")[1].strip()
+    day = metadata[1].split(" ")[1].strip()
     date = f"{day}/{month_number}/{year}"
-    country = metadata[1].strip()
+    country = metadata[3].strip()
     state = None
     city = None
-    if len(metadata) < 5:
-        city = metadata[2].strip()
-    if len(metadata) == 5:
-        state = metadata[2].strip()
-        country = metadata[1].strip()
-        city = metadata[3].strip()
+    if len(metadata) < 10:
+        city = metadata[5].strip()
+    if len(metadata) == 10:
+        state = metadata[5].strip()
+        country = metadata[3].strip()
+        city = metadata[7].strip()
 
     event_dict = {
         "event_id": event_id,
@@ -100,7 +103,6 @@ def event(link, year):
         rows = rating_table.find_all("tr")
         rows = rows[1:]
 
-        print(rating)
         for r in rows:
             entries = r.find_all("td")
             rank = entries[0].text.strip()
@@ -144,3 +146,4 @@ def event(link, year):
 
 if __name__ == "__main__":
     event("/events/details/1/", 2016)
+    event("/events/details/1995/", 2024)

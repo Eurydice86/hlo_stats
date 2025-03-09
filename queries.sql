@@ -1,81 +1,74 @@
 .mode table
+
 /*
-.headers on
-.mode csv
-.output data.csv
-*/
-/*
-with here_before as ( 
-select *
+with latest_plus_any_hlo as (
+with hlo as (select f.fighter_id, name, year, category_name, country, club_name, nationality
 from
 participations p
 join fighters f on f.fighter_id = p.fighter_id
 join categories c on p.category_id = c.category_id
-join clubs cl on cl.club_id = f.club_id
-where year != '2024'
-)
+join clubs cl on cl.club_id = f.club_id)
 
-select distinct(f.name), h.club_name, h.nationality, h.country
-from
-fighters f join here_before h on f.fighter_id = h.fighter_id
-order by h.club_name
+select fighter_id, name, category_name, country, club_name, nationality from hlo
+where year != 2024
+
+intersect
+
+select fighter_id, name, category_name, country, club_name, nationality from hlo
+where year = 2024)
+
+select * from latest_plus_any_hlo
+order by fighter_id
 ;
-*/
 
-/*
-with hlo24 as (select name
+
+
+with last_2_hlos as (
+with hlo as (select f.fighter_id, name, year, category_name, country, club_name, nationality
 from
 participations p
 join fighters f on f.fighter_id = p.fighter_id
 join categories c on p.category_id = c.category_id
-join clubs cl on cl.club_id = f.club_id
-where year == '2024'),
+join clubs cl on cl.club_id = f.club_id)
 
-hlo23 as (select name
-from
-participations p
-join fighters f on f.fighter_id = p.fighter_id
-join categories c on p.category_id = c.category_id
-join clubs cl on cl.club_id = f.club_id
-where year == '2023')
-select count(distinct hlo23.name) from hlo23 join hlo24 on hlo23.name = hlo24.name 
+select fighter_id, name, category_name, country, club_name, nationality from hlo
+where year = 2023
+
+intersect
+
+select fighter_id, name, category_name, country, club_name, nationality from hlo
+where year = 2024)
+
+select * from last_2_hlos
+order by fighter_id
 ;
+
 */
 
-/*
-select name, club_name, category_name, count(year)
+with hlo22 as(
+with hlo as (select distinct f.fighter_id, name, year, category_name, country, club_name, nationality
 from
 participations p
 join fighters f on f.fighter_id = p.fighter_id
 join categories c on p.category_id = c.category_id
-join clubs cl on cl.club_id = f.club_id
-group by name, category_name
-order by 3, 4;
-*/
+join clubs cl on cl.club_id = f.club_id)
 
-/*
-select name, club_name, category_name, year
+select fighter_id, name from hlo
+where year = 2022),
+
+
+hlo23 as(
+with hlo as (select distinct f.fighter_id, name, year, category_name, country, club_name, nationality
 from
 participations p
 join fighters f on f.fighter_id = p.fighter_id
 join categories c on p.category_id = c.category_id
-join clubs cl on cl.club_id = f.club_id
-where name like 'Sebastian Wil%'
+join clubs cl on cl.club_id = f.club_id)
 
-;
-*/
+select fighter_id, name from hlo
+where year = 2023)
 
-with hlo as (select name, year, category_name, country, club_name, nationality
-from
-participations p
-join fighters f on f.fighter_id = p.fighter_id
-join categories c on p.category_id = c.category_id
-join clubs cl on cl.club_id = f.club_id
-where year == 2024)
-select category_name as 'Competition', count(distinct name) as 'Participants', count(distinct club_name) as 'Clubs', count(distinct nationality) as 'Nationalities'
-from hlo
-group by category_name
-union
-select 'Unique for 2024' as 'Competition', count(distinct name) as 'Participants', count(distinct club_name) as 'Clubs', count(distinct nationality) as 'Nationalities'
-from hlo 
-;
+select distinct hlo23.fighter_id, hlo23.name from hlo23
+left join hlo22
+on hlo23.fighter_id = hlo22.fighter_id
+where hlo22.fighter_id is not null 
