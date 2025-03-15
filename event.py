@@ -30,22 +30,30 @@ def event(link, year):
     for m in metadata_table:
         metadata.append(m.text.strip())
 
-    month_name = metadata[1].split(" ")[0].strip()
+    metadata_dict = {}
+    for i in range(0, int(len(metadata)), 2):
+        metadata_dict[metadata[i]] = metadata[i + 1]
+
+    event_date = metadata_dict["Date"]
+    month_name = event_date.split(" ")[0].strip()
 
     date_object = datetime.strptime(month_name, "%B")
     month_number = date_object.month
 
-    day = metadata[1].split(" ")[1].strip()
+    day = event_date.split(", ")[0].split(" ")[1].strip()
     date = f"{day}/{month_number}/{year}"
-    country = metadata[3].strip()
-    state = None
-    city = None
-    if len(metadata) < 10:
-        city = metadata[5].strip()
-    if len(metadata) == 10:
-        state = metadata[5].strip()
-        country = metadata[3].strip()
-        city = metadata[7].strip()
+
+    country = metadata_dict["Country"]
+
+    try:
+        city = metadata_dict["City"]
+    except:
+        city = None
+
+    try:
+        state = metadata_dict["State"]
+    except:
+        state = None
 
     event_dict = {
         "event_id": event_id,

@@ -1,6 +1,7 @@
 import sqlite3
 import sql_helpers
 import os
+import csv
 
 if not os.path.exists("data"):
     os.mkdir("data")
@@ -43,7 +44,7 @@ def initialise(cursor):
             {
                 "category_id": "TEXT PRIMARY KEY",
                 "category_name": "TEXT",
-                "year": "TEXT",
+                "year": "INT",
                 "event": "TEXT",
             },
         )
@@ -78,3 +79,16 @@ def initialise(cursor):
     )
 
     return cursor
+
+def table_to_csv(table):
+    db_name = "data/hlo.db"
+    conn = sqlite3.connect(database=db_name)
+    cursor = conn.cursor()
+    cursor.execute(f"select * from {table}")
+    with open(f"data/{table}.csv", "w") as csv_file:
+      csv_writer = csv.writer(csv_file, delimiter=",")
+      csv_writer.writerow([i[0] for i in cursor.description])
+      csv_writer.writerows(cursor)
+
+    conn.commit()
+    conn.close()

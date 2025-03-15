@@ -9,6 +9,8 @@ import database
 import uuid
 import json
 
+import export_to_csv
+
 
 def hlo_list():
     hlos = {
@@ -20,7 +22,7 @@ def hlo_list():
         2019: 1401,
         2020: 1581,
         2022: 1714,
-        2023: 1794,        
+        2023: 1794,
         2024: 1983,
         2025: 2279,
     }
@@ -90,7 +92,6 @@ def do_the_things(year, cursor):
     for c in rating_dicts:
         cursor.execute(sql_helpers.insert("ratings", c))
 
-    
 
 if __name__ == "__main__":
 
@@ -106,3 +107,5 @@ if __name__ == "__main__":
 
     conn.commit()
     conn.close()
+
+    export_to_csv.export_to_csv()

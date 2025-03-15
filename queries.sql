@@ -1,4 +1,16 @@
 .mode table
+select f.name, f.nationality, cl.club_name, c.category_name, count(*) as appearances from
+fighters f
+join participations p
+on f.fighter_id = p.fighter_id
+join categories c
+on c.category_id = p.category_id
+join clubs cl
+on f.club_id = cl.club_id
+group by f.name, c.category_name
+order by appearances desc
+limit 30;
+
 
 /*
 with latest_plus_any_hlo as (
@@ -43,7 +55,7 @@ select * from last_2_hlos
 order by fighter_id
 ;
 
-*/
+
 
 with hlo22 as(
 with hlo as (select distinct f.fighter_id, name, year, category_name, country, club_name, nationality
@@ -72,3 +84,4 @@ select distinct hlo23.fighter_id, hlo23.name from hlo23
 left join hlo22
 on hlo23.fighter_id = hlo22.fighter_id
 where hlo22.fighter_id is not null 
+*/
